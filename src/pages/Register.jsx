@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Alerta from "../components/Alerta";
-import axiosClient from '../config/axios';
-
+import axiosClient from "../config/axios";
 
 const Register = () => {
   const [nombre, setNombre] = useState("");
@@ -18,7 +17,7 @@ const Register = () => {
     if (alerta.message) {
       const timer = setTimeout(() => {
         setAlerta({});
-      }, 3000);
+      }, 8000);
 
       return () => {
         clearTimeout(timer);
@@ -39,32 +38,37 @@ const Register = () => {
     }
     if (password.length < 8) {
       setAlerta({
-        message: "La contraseña no es lo suficientemente larga. Debe tener minimo 8 caracteres", err: true
+        message:
+          "La contraseña no es lo suficientemente larga. Debe tener minimo 8 caracteres",
+        err: true,
       });
       return;
     }
 
     try {
-      const url = '/psychologists/register';
-      const response = await axiosClient.post(url,
-        {
-          name: nombre,
-          email: email,
-          password: password,
-        }
-      );
+      const url =
+        "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/patients/";
+      const response = await axiosClient.post(url, {
+        name: nombre,
+        email: email,
+        password: password,
+      });
 
-      if (response.data.message) {
-        setAlerta({ message: "Cuenta creada exitosamente revisa tu email para confirmar registro" , err: false});
+      // Verifica si la respuesta contiene "Paciente registrado"
+      if (response.data["Paciente registrado"]) {
+        setAlerta({
+          message:
+            "Cuenta creada exitosamente. Revisa tu email para confirmar el registro",
+          err: false,
+        });
       } else {
-        setAlerta({ message: "Error al crear cuenta" , err: true});
+        setAlerta({ message: "Error al crear cuenta", err: true });
       }
     } catch (error) {
-      if (error.response && error.response.data) {
-        // Muestra un mensaje de error específico del back
-        setAlerta({ message: error.response.data.error });
+      if (error.response && error.response.data && error.response.data.msg) {
+        setAlerta({ message: error.response.data.msg, err: true });
       } else {
-        setAlerta({ message: "Error al crear cuenta" , err: true});
+        setAlerta({ message: "Error al crear cuenta", err: true });
       }
     }
   };
@@ -75,10 +79,15 @@ const Register = () => {
     <>
       <form
         action=""
-        className="bg-blue-900 rounded-xl my-1 md:my-2 xl:my-4 w-full sm:w-full md:w-full lg:w-7/8 xl:w-3/4 2xl:w-max 2xl:max-w-xl mx-auto p-8 shadow-lg"
+        className="bg-blue-900 rounded-xl my-1 md:my-2 xl:my-4 mx-auto p-8 shadow-lg w-full max-w-3xl"
         onSubmit={handleSubmit}
       >
-        {message && <Alerta alerta={alerta} />}
+        <div className="alert-space" style={{ minHeight: "10px" }}>
+          {" "}
+          {/* Espacio reservado para la alerta */}
+          {alerta.message && <Alerta alerta={alerta} />}
+        </div>
+
         <div className="my-10 mx-5">
           <label className="text-white block text-xl font-bold">Nombre</label>
           <input
