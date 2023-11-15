@@ -15,9 +15,7 @@ function ConfirmAccount() {
   useEffect(() => {
     const confirmAccount = async () => {
       try {
-      // const url = `${import.meta.env.VITE_BACKEND_LOGIN_AND_REGISTER}/patients/confirm/${token}`;
-
-        const url = `/patients/confirm/${token}`;
+        const url = `patients/confirm/${token}`;
         const { data } = await axiosClient(url);
         console.log(data)
         setConfirmAccount(true);

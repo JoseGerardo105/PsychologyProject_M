@@ -33,7 +33,7 @@ const MailForPassword = () => {
       return;
     }
     try {
-      const url = '/psychologists/change-password/';
+      const url = '/patients/forget-password';
 
       const response = await axiosClient.patch(
         url,
