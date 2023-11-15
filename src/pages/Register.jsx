@@ -46,8 +46,7 @@ const Register = () => {
     }
 
     try {
-      const url =
-        "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/patients/";
+      const url = `${import.meta.env.VITE_BACKEND_LOGIN_AND_REGISTER}/patients`;
       const response = await axiosClient.post(url, {
         name: nombre,
         email: email,
