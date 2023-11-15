@@ -46,7 +46,7 @@ const Register = () => {
     }
 
     try {
-      const url = `${import.meta.env.VITE_BACKEND_LOGIN_AND_REGISTER}/patients`;
+      const url = `${import.meta.env.VITE_BACKEND_URL}/api/patients`;
       const response = await axiosClient.post(url, {
         name: nombre,
         email: email,

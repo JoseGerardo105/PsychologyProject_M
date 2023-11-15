@@ -39,30 +39,34 @@ const Login = () => {
     }
     try {
       // Intentar iniciar sesión como psicólogo
-      let url = "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/psychologists/login";
+      let url =
+        "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/psychologists/login";
       let response = await axiosClient.post(url, {
         email: nombre,
         password: password,
       });
-    
+
       // Si no hay token, intenta iniciar sesión como paciente
       if (!response.data.token) {
-        url = "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/patients/login";
+        url =
+          "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/patients/login";
         response = await axiosClient.post(url, {
           email: nombre,
           password: password,
         });
       }
-    
+
       // Verificar si se obtuvo un token en alguna de las respuestas
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
         // Determinar el rol basado en qué endpoint fue exitoso
-        const role = url.includes("/psychologists/login") ? "psicologo" : "paciente";
+        const role = url.includes("/psychologists/login")
+          ? "psicologo"
+          : "paciente";
         localStorage.setItem("role", role);
         localStorage.setItem("userId", response.data.id);
         localStorage.setItem("userEmail", nombre);
-    
+
         setAlerta({ message: "Inicio de sesión exitoso", err: false });
         navigate("/home");
       } else {
