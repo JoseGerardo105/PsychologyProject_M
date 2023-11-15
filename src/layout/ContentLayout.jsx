@@ -191,7 +191,7 @@ const ContentLayout = () => {
                 </nav>
               </List>{" "}
             </Collapse>{" "}
-            <ListItem button onClick={handleClickHistorias}>
+            {/* <ListItem button onClick={handleClickHistorias}>
               {" "}
               <ListItemIcon className={classes.icon}>
                 {" "}
@@ -230,10 +230,10 @@ const ContentLayout = () => {
                   </Link>
                 </nav>
               </List>{" "}
-            </Collapse>{" "}
+            </Collapse>{" "} */}
             <nav>
               <Link to="/home/stats">
-                <ListItem button>
+                {/* <ListItem button>
                   {" "}
                   <ListItemIcon className={classes.icon}>
                     {" "}
@@ -243,7 +243,7 @@ const ContentLayout = () => {
                     primary="Reportes"
                     classes={{ primary: classes.mainMenuItemText }}
                   />{" "}
-                </ListItem>{" "}
+                </ListItem>{" "} */}
               </Link>
               <Link to="/home/my-profile">
                 <ListItem button>
