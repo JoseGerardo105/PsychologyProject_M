@@ -16,7 +16,7 @@ const ResetPasswordForEnter = () => {
   useEffect(() => {
     const comprobeToken = async () => {
       try {
-        const url = `/psychologists/change-password/${token}`;
+        const url = `/patients/forget-password/${token}`;
         await axiosClient(url);
         setAlerta({ message: "Coloca tu nueva contraseña" });
         setValidToken(true);
@@ -58,7 +58,7 @@ const ResetPasswordForEnter = () => {
     }
 
     try {
-      const url = `/psychologists/change-password/${token}`;
+      const url = `/patients/forget-password/${token}`;
       const { data } = await axiosClient.post(url, { password });
       setAlerta({
         message: data.message,

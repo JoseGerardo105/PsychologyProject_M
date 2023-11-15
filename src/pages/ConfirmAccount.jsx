@@ -15,7 +15,7 @@ function ConfirmAccount() {
   useEffect(() => {
     const confirmAccount = async () => {
       try {
-        const url = `/psychologists/confirm/${token}`;
+        const url = `patients/confirm/${token}`;
         const { data } = await axiosClient(url);
         setConfirmAccount(true);
         setAlerta({
