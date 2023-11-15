@@ -16,7 +16,7 @@ const Login = () => {
     if (alerta.message) {
       const timer = setTimeout(() => {
         setAlerta({});
-      }, 3000);
+      }, 8000);
 
       return () => {
         clearTimeout(timer);
@@ -31,36 +31,40 @@ const Login = () => {
       localStorage.setItem("token", "admin-token"); // Puedes generar un token de administrador específico aquí
       localStorage.setItem("role", "administrador");
       localStorage.setItem("userId", "admin-id"); // Puedes asignar un ID de administrador específico aquí
-      localStorage.setItem("userEmail", 'admin@admin.com');
+      localStorage.setItem("userEmail", "admin@admin.com");
 
       setAlerta({ msg: "Inicio de sesión exitoso", err: false });
       navigate("/home");
       return;
     }
     try {
-      const url = "/psychologists/login";
-      const response = await axiosClient.post(url, {
+      // Intentar iniciar sesión como psicólogo
+      let url =
+        "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/patients/login";
+      let response = await axiosClient.post(url, {
         email: nombre,
         password: password,
       });
+
+      // Verificar si se obtuvo un token en alguna de las respuestas
       if (response.data.token) {
-        // Guarda el token, el rol y el ID del usuario en el almacenamiento local
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", "usuario"); // Establece el rol de usuarios normales como "usuario"
-        localStorage.setItem("userId", response.data.id); // Asume que el ID del usuario se incluye en la respuesta del servidor
+        // Determinar el rol basado en qué endpoint fue exitoso
+        const role = url.includes("/psychologists/login")
+          ? "psicologo"
+          : "paciente";
+        localStorage.setItem("role", role);
+        localStorage.setItem("userId", response.data.id);
         localStorage.setItem("userEmail", nombre);
+
         setAlerta({ message: "Inicio de sesión exitoso", err: false });
         navigate("/home");
       } else {
         setAlerta({ message: "Error al iniciar sesión", err: true });
       }
     } catch (error) {
-      if (error.response && error.response.data) {
-        // Muestra un mensaje de error específico desde el backend
-        setAlerta({ message: error.response.data.error, err: true });
-      } else {
-        setAlerta({ message: "Error al iniciar sesión", err: true });
-      }
+      const errorMsg = error.response?.data?.msg || "Error al iniciar sesión";
+      setAlerta({ message: errorMsg, err: true });
     }
   };
   const { message } = alerta;
