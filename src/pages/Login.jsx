@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Alerta from "../components/Alerta";
-import axiosClient from "../config/axios";
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Alerta from '../components/Alerta';
+import axiosClient from '../config/axios';
 
 const Login = () => {
-  const [nombre, getNombre] = useState("");
-  const [password, getPassword] = useState("");
-  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
-  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
+  const [nombre, setNombre] = useState('');
+  const [password, setPassword] = useState('');
   const [alerta, setAlerta] = useState({});
 
   const navigate = useNavigate();
@@ -16,77 +14,62 @@ const Login = () => {
     if (alerta.message) {
       const timer = setTimeout(() => {
         setAlerta({});
-      }, 8000);
-
-      return () => {
-        clearTimeout(timer);
-      };
+      }, 5000);
+      return () => clearTimeout(timer);
     }
   }, [alerta]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (nombre === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      // Iniciar sesión como administrador
-      localStorage.setItem("token", "admin-token"); // Puedes generar un token de administrador específico aquí
-      localStorage.setItem("role", "administrador");
-      localStorage.setItem("userId", "admin-id"); // Puedes asignar un ID de administrador específico aquí
-      localStorage.setItem("userEmail", "admin@admin.com");
 
-      setAlerta({ msg: "Inicio de sesión exitoso", err: false });
-      navigate("/home");
-      return;
-    }
     try {
       // Intentar iniciar sesión como psicólogo
-      let url =
-        "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/psychologists/login";
-      let response = await axiosClient.post(url, {
+      const responsePsy = await axiosClient.post('http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/psychologists/login', {
         email: nombre,
         password: password,
       });
 
-      // Si no hay token, intenta iniciar sesión como paciente
-      if (!response.data.token) {
-        url =
-          "http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/patients/login";
-        response = await axiosClient.post(url, {
+      if (responsePsy.data.token) {
+        // Guardar datos de sesión de psicólogo
+        handleSuccessfulLogin(responsePsy.data, 'psicólogo');
+        return;
+      }
+    } catch (error) {
+      // Si falla, intenta iniciar sesión como paciente
+      try {
+        const responsePat = await axiosClient.post('http://psynergiaauth-dev.eba-gndziymq.us-east-1.elasticbeanstalk.com/api/patients/login', {
           email: nombre,
           password: password,
         });
-      }
 
-      // Verificar si se obtuvo un token en alguna de las respuestas
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        // Determinar el rol basado en qué endpoint fue exitoso
-        const role = url.includes("/psychologists/login")
-          ? "psicologo"
-          : "paciente";
-        localStorage.setItem("role", role);
-        localStorage.setItem("userId", response.data.id);
-        localStorage.setItem("userEmail", nombre);
-
-        setAlerta({ message: "Inicio de sesión exitoso", err: false });
-        navigate("/home");
-      } else {
-        setAlerta({ message: "Error al iniciar sesión", err: true });
+        if (responsePat.data.token) {
+          // Guardar datos de sesión de paciente
+          handleSuccessfulLogin(responsePat.data, 'paciente');
+          return;
+        }
+      } catch (error) {
+        setAlerta({ message: 'Error al iniciar sesión', err: true });
       }
-    } catch (error) {
-      const errorMsg = error.response?.data?.msg || "Error al iniciar sesión";
-      setAlerta({ message: errorMsg, err: true });
     }
   };
-  const { message } = alerta;
+
+  const handleSuccessfulLogin = (data, role) => {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', role);
+    localStorage.setItem('userId', data.id);
+    localStorage.setItem('userEmail', nombre);
+
+    setAlerta({ message: 'Inicio de sesión exitoso', err: false });
+    navigate('/home');
+  };
 
   return (
     <>
       <form
-        classaction=""
         className="bg-blue-900 rounded-xl my-1 md:my-2 xl:my-4 w-full sm:w-full md:w-full lg:w-7/8 xl:w-3/4 2xl:w-max 2xl:max-w-xl mx-auto p-8 shadow-lg"
         onSubmit={handleSubmit}
       >
-        {message && <Alerta alerta={alerta} />}
+        {alerta.message && <Alerta alerta={alerta} />}
 
         <div className="my-10 mx-5">
           <label className="text-white block text-xl font-bold">E-mail</label>
@@ -95,19 +78,17 @@ const Login = () => {
             placeholder="Introduce tu e-mail"
             className="border w-full p-3 mt-3 rounded-xl"
             value={nombre}
-            onChange={(e) => getNombre(e.target.value)}
+            onChange={(e) => setNombre(e.target.value)}
           />
         </div>
         <div className="my-5 mx-5">
-          <label className="text-white block text-xl font-bold">
-            Contraseña
-          </label>
+          <label className="text-white block text-xl font-bold">Contraseña</label>
           <input
             type="password"
             placeholder="Introduce tu contraseña"
             className="border w-full p-3 mt-3 rounded-xl"
             value={password}
-            onChange={(e) => getPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
@@ -119,11 +100,10 @@ const Login = () => {
 
         <nav className="mt-5 lg:flex lg:justify-between my-5 mx-5 underline">
           <Link className="block text-center text-white" to="/register">
-            No tienes una cuenta?{" "}
-            <span className=" hover:cursor-pointer">Registrate</span>
+            No tienes una cuenta? <span className="hover:cursor-pointer">Registrate</span>
           </Link>
           <Link className="block text-center text-white" to="/restore-account">
-            Olvide mi contraseña
+            Olvidé mi contraseña
           </Link>
         </nav>
       </form>
